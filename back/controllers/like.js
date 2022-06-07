@@ -1,8 +1,6 @@
-const sauce = require("../models/sauce");
 const Sauce = require("../models/sauce");
 
 exports.like = (req, res, next) => {
-  console.log(req.body);
   let userId = req.body.userId;
   //find sauce to update
   Sauce.findOne({ _id: req.params.id })
@@ -21,7 +19,7 @@ exports.like = (req, res, next) => {
           .then((sauce) => res.status(201).json(sauce))
           .catch((error) => res.status(400).json({ error }));
       }
-      //cas 2: user dislikes sauce like = -1
+      //case 2: user dislikes sauce like = -1
       // => get userId from request and push it in usersDisliked array and pull it from usersLiked array
       if (req.body.like == -1 && !sauce.usersDisliked.includes(userId)) {
         Sauce.updateOne(
