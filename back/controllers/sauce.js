@@ -3,6 +3,7 @@ const fs = require("fs");
 
 exports.createSauce = (req, res, next) => {
   const sauceObject = JSON.parse(req.body.sauce);
+
   const sauce = new Sauce({
     ...sauceObject,
     imageUrl: `${req.protocol}://${req.get("host")}/images/${
@@ -31,12 +32,17 @@ exports.getOneSauce = (req, res, next) => {
 exports.modifySauce = (req, res, next) => {
   Sauce.findOne({ _id: req.params.id })
     .then((sauce) => {
+      //getting the image from the sauce
+      const oldFilename = sauce.imageUrl.split("/images/")[1];
+      //returning error is there is no sauce found
       if (!sauce) {
         res.status(404).json({ message: "Sauce non trouvée" });
       }
+      //checking that if the userId from the sauce and from the request are different and if so not allowing access
       if (sauce.userId !== req.auth.userId) {
         res.status(401).json({ message: "Accès non autorisé" });
       } else {
+        // after all the previous checks the sauce can be updated
         //getting new data and/or image
         const sauceObject = req.file
           ? {
@@ -47,11 +53,17 @@ exports.modifySauce = (req, res, next) => {
             }
           : { ...req.body };
         //update sauce with new data and/or image
+
         Sauce.updateOne(
           { _id: req.params.id },
           { ...sauceObject, _id: req.params.id }
         )
-          .then(() => res.status(200).json({ message: "Sauce modifiée" }))
+          .then(() => {
+            fs.unlink(`images/${oldFilename}`, (err) => {
+              message: "Image non supprimée";
+            });
+            res.status(200).json({ message: "Sauce modifiée" });
+          })
           .catch((error) => res.status(400).json({ error }));
       }
     })
@@ -64,11 +76,14 @@ exports.deleteSauce = (req, res, next) => {
       if (!sauce) {
         res.status(404).json({ message: "Sauce non trouvée" });
       }
+      //checking that if the userId from the sauce and from the request are different and if so not allowing access
       if (sauce.userId !== req.auth.userId) {
         res.status(401).json({ message: "Accès non autorisé" });
       }
+      //deleting image
       const filename = sauce.imageUrl.split("/images/")[1];
       fs.unlink(`images/${filename}`, () => {
+        //deleting sauce from website and DB
         Sauce.deleteOne({ _id: req.params.id })
           .then(() => res.status(200).json({ message: "Sauce supprimée" }))
           .catch((error) => res.status(400).json({ error }));
