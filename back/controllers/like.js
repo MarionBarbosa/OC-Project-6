@@ -7,13 +7,16 @@ exports.like = (req, res, next) => {
     .then((sauce) => {
       // case 1: user likes sauce like=1
       // => get userId from request and push it in usersLiked array and pull it from usersDisliked array
-      if (req.body.like == 1 && !sauce.usersLiked.includes(userId)) {
+      if (
+        req.body.like == 1 &&
+        !sauce.usersLiked.includes(userId) &&
+        !sauce.usersDisliked.includes(userId)
+      ) {
         Sauce.updateOne(
           { _id: req.params.id },
           {
             $inc: { likes: req.body.like },
             $addToSet: { usersLiked: req.body.userId },
-            $pull: { usersDisliked: req.body.userId },
           }
         )
           .then((sauce) => res.status(201).json(sauce))
@@ -21,18 +24,25 @@ exports.like = (req, res, next) => {
       }
       //case 2: user dislikes sauce like = -1
       // => get userId from request and push it in usersDisliked array and pull it from usersLiked array
-      if (req.body.like == -1 && !sauce.usersDisliked.includes(userId)) {
+      if (
+        req.body.like == -1 &&
+        !sauce.usersDisliked.includes(userId) &&
+        !sauce.usersLiked.includes(userId)
+      ) {
         Sauce.updateOne(
           { _id: req.params.id },
           {
             $inc: { dislikes: req.body.like },
             $addToSet: { usersDisliked: req.body.userId },
-            $pull: { usersLiked: req.body.userId },
           }
         )
 
           .then((sauce) => res.status(201).json(sauce))
           .catch((error) => res.status(400).json({ error }));
+      } else {
+        return res
+          .status(400)
+          .json({ message: "Sauce déjà likée ou dislikée" });
       }
       // case 3: user takes off his like or dislike => like=0 + delete from all arrays
       //case 3a: user takes off his like
