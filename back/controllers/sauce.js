@@ -4,20 +4,24 @@ const fs = require("fs");
 exports.createSauce = (req, res, next) => {
   const sauceObject = JSON.parse(req.body.sauce);
 
-  const sauce = new Sauce({
-    ...sauceObject,
-    imageUrl: `${req.protocol}://${req.get("host")}/images/${
-      req.file.filename
-    }`,
-    likes: 0,
-    dislikes: 0,
-    usersLiked: [],
-    usersDisliked: [],
-  });
-  sauce
-    .save()
-    .then(() => res.status(201).json({ message: "Sauce Enregistrée !" }))
-    .catch((error) => res.status(400).json({ error }));
+  if (sauceObject.userId !== req.auth.userId) {
+    res.status(401).json({ message: "Accès non autorisé" });
+  } else {
+    const sauce = new Sauce({
+      ...sauceObject,
+      imageUrl: `${req.protocol}://${req.get("host")}/images/${
+        req.file.filename
+      }`,
+      likes: 0,
+      dislikes: 0,
+      usersLiked: [],
+      usersDisliked: [],
+    });
+    sauce
+      .save()
+      .then(() => res.status(201).json({ message: "Sauce Enregistrée !" }))
+      .catch((error) => res.status(400).json({ error }));
+  }
 };
 exports.getAllSauces = (req, res, next) => {
   Sauce.find()
