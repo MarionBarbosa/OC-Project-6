@@ -28,9 +28,9 @@ function checkPasswordValidation(value) {
     return "Le mot de passe doit contenir au minimum 1 symbole.";
   }
 
-  const isValidLength = /^.{10,16}$/;
+  const isValidLength = /^.{10}$/;
   if (!isValidLength.test(value)) {
-    return "Le mot de passe doit contenir entre 10 et 16 caratères.";
+    return "Le mot de passe doit contenir un minimum de 10 caratères.";
   }
   return null;
 }
@@ -74,7 +74,7 @@ exports.login = (req, res, next) => {
           res.status(200).json({
             userId: user._id,
             token: jwt.sign({ userId: user._id }, "RANDOM_TOKEN_SECRET", {
-              expiresIn: "24h",
+              expiresIn: "1h",
             }),
           });
         })
