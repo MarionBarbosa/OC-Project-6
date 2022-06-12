@@ -1,3 +1,5 @@
+const dotenv = require("dotenv");
+dotenv.config();
 const express = require("express");
 const mongoose = require("mongoose");
 const app = express();
@@ -8,9 +10,13 @@ const path = require("path");
 const { dirname } = require("path");
 
 //connecting to database
+const USER_NAME = process.env.USER_NAME;
+const PASSWORD_MONGO = process.env.PASSWORD_MONGO;
+const CLUSTER = process.env.CLUSTER;
+const DATABASE = process.env.DATABASE;
 mongoose
   .connect(
-    "mongodb+srv://maryonBarbo:Clust3r123@cluster0.2texb.mongodb.net/Piiquante?retryWrites=true&w=majority",
+    `mongodb+srv://${USER_NAME}:${PASSWORD_MONGO}@${CLUSTER}.2texb.mongodb.net/${DATABASE}?retryWrites=true&w=majority`,
     {
       useNewUrlParser: true,
       useUnifiedTopology: true,
