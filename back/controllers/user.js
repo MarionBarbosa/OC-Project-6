@@ -28,7 +28,7 @@ function checkPasswordValidation(value) {
     return "Le mot de passe doit contenir au minimum 1 symbole.";
   }
 
-  const isValidLength = /^.{10}$/;
+  const isValidLength = /^.{10,}$/;
   if (!isValidLength.test(value)) {
     return "Le mot de passe doit contenir un minimum de 10 caratères.";
   }
@@ -54,7 +54,7 @@ exports.signup = (req, res, next) => {
   } else {
     return res.status(401).json({
       message:
-        "Le mot de passe doit contenir entre 10 et 16 caratères, dont 1 majuscule, 1 chiffre, 1 symbole et sans espaces",
+        "Le mot de passe doit contenir minimum 10 caratères, dont 1 majuscule, 1 chiffre, 1 symbole et sans espaces",
     });
   }
 };
